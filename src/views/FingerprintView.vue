@@ -47,8 +47,8 @@ async function generateFingerprint(): Promise<Fingerprint> {
   // Try WebGL fingerprinting
   let usingWebGL = true
   let hashedWebglFingerprint: Promise<string> | undefined
-  const canvas: HTMLCanvasElement = document.createElement('canvas')
-  const gl: WebGLRenderingContext | null = canvas.getContext('webgl')
+  const canvasWebGL: HTMLCanvasElement = document.createElement('canvas')
+  const gl: WebGLRenderingContext | null = canvasWebGL.getContext('webgl')
   if (gl) {
     // eslint-disable-next-line no-undef
     const debugInfo: WEBGL_debug_renderer_info | null = gl.getExtension('WEBGL_debug_renderer_info')
@@ -60,7 +60,8 @@ async function generateFingerprint(): Promise<Fingerprint> {
   // If WebGL fingerprinting fails, use canvas fingerprinting
   if (!hashedWebglFingerprint) {
     usingWebGL = false
-    const context: CanvasRenderingContext2D | null = canvas.getContext('2d')
+    const canvasCanvas: HTMLCanvasElement = document.createElement('canvas')
+    const context: CanvasRenderingContext2D | null = canvasCanvas.getContext('2d')
     if (context) {
       const text: string = 'Canvas fingerprint'
       context.textBaseline = 'top'
@@ -72,9 +73,9 @@ async function generateFingerprint(): Promise<Fingerprint> {
       context.fillText(text, 2, 15)
       context.fillStyle = 'rgba(102, 204, 0, 0.7)'
       context.fillText(text, 4, 17)
-      const canvasFingerprint: string = canvas.toDataURL()
+      const canvasFingerprint: string = canvasCanvas.toDataURL()
       hashedWebglFingerprint = sha256(canvasFingerprint)
-      console.log('canvas fingerprint: ' + canvasFingerprint)
+      console.log('canvas fingerprint: ' + (await hashedWebglFingerprint))
     }
   }
 
@@ -88,7 +89,6 @@ async function generateFingerprint(): Promise<Fingerprint> {
     usingWebGL: usingWebGL
   }
   return returnObj
-  //return hashedFingerprint.then(hashedFp => hashedWebglFingerprint ? hashedFp + hashedWebglFingerprint : hashedFp);
 }
 
 function sha256(input: string): Promise<string> {
