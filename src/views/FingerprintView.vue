@@ -19,9 +19,9 @@ export default defineComponent({
   created() {
     console.log('weeehaaa')
     const fingerprint: Promise<Fingerprint> = generateFingerprint() // Outputs a unique hash for the user's browser and device including WebGL and/or canvas fingerprints
-    console.log(fingerprint)
 
     fingerprint.then((fp) => {
+      console.log(fingerprint)
       if (fp.fingerprintHash) {
         fp.fingerprintHash.then((fpH) => {
           this.fingerprint = fpH
@@ -78,12 +78,12 @@ async function generateFingerprint(): Promise<Fingerprint> {
       console.log('canvas fingerprint: ' + (await hashedWebglFingerprint))
     }
   }
-
+  const longFingerprint = Promise.all([hashedInfoFingerprint, hashedWebglFingerprint]).then(
+    (data) => (data[1] ? data[0] + data[1] : data[0])
+  )
   // Combine the hashed browser and device information and WebGL fingerprint
   let returnObj: Fingerprint = {
-    fingerprintHash: Promise.all([hashedInfoFingerprint, hashedWebglFingerprint]).then((data) =>
-      data[1] ? data[0] + data[1] : data[0]
-    ),
+    fingerprintHash: longFingerprint.then((hashedFingerprint) => sha256(hashedFingerprint)),
     hashedInfoFingerprint: hashedInfoFingerprint.then((hashedInfo) => hashedInfo),
     hashedWebglFingerprint: hashedWebglFingerprint?.then((hashedWeb) => hashedWeb) ?? undefined,
     usingWebGL: usingWebGL
