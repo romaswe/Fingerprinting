@@ -1,6 +1,6 @@
 <template>
   <div class="fingerprintContainer">
-    <h1>Your fingerprint is: {{ fingerprint }}</h1>
+    <h1>Your fingerprint is: {{ fingerprintObject.fingerprintHash }}</h1>
   </div>
 </template>
 
@@ -11,8 +11,8 @@ import { defineComponent } from 'vue'
 export default defineComponent({
   data() {
     return {
-      fingerprint: '',
-      usingWebGL: true
+      usingWebGL: true,
+      fingerprintObject: {} as Fingerprint
     }
   },
   methods: {},
@@ -22,11 +22,18 @@ export default defineComponent({
 
     fingerprint.then((fp) => {
       console.log(fingerprint)
-      if (fp.fingerprintHash) {
-        fp.fingerprintHash.then((fpH) => {
-          this.fingerprint = fpH
-        })
-      }
+      Promise.all([fp.fingerprintHash, fp.hashedInfoFingerprint, fp.hashedWebglFingerprint]).then(
+        (data) => {
+          console.log(data)
+
+          const fingerprint = data[0]
+          const fingerprintInfo = data[1]
+          const fingerprintCanvas = data[2]
+          this.fingerprintObject.fingerprintHash = fingerprint
+          this.fingerprintObject.hashedInfoFingerprint = fingerprintInfo
+          this.fingerprintObject.hashedWebglFingerprint = fingerprintCanvas
+        }
+      )
     })
   }
 })
