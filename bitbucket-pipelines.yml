@@ -6,6 +6,6 @@ pipelines:
         clone:
           enabled: false
         script:
-          - git clone --bare git@github.com:romaswe/Fingerprinting.git
+          - git clone --bare git@bitbucket.org:romaswe/fingerprinting.git
           - cd Fingerprinting.git
           - git push --mirror git@github.com:romaswe/Fingerprinting.git
